@@ -1,13 +1,15 @@
-# Anthropic API 버전. 게이트웨이가 요구하는 값이라 모델/엔드포인트와 무관하게 고정한다.
-ANTHROPIC_VERSION = "2023-06-01"
-DEFAULT_MAX_TOKENS = 1024
-
 # region 0. import statements
+# from __future__ import는 파일의 첫 문장이어야 하고(주석은 예외),
+# 다른 import도 상수 같은 코드보다 위에 둬야 ruff 검사(F404, E402)를 통과한다.
 from __future__ import annotations
 from typing import Protocol
 import httpx
 from app.config import Settings
 # endregion
+
+# Anthropic API 버전. 게이트웨이가 요구하는 값이라 모델/엔드포인트와 무관하게 고정한다.
+ANTHROPIC_VERSION = "2023-06-01"
+DEFAULT_MAX_TOKENS = 1024
 
 # region 1. AI 클라이언트 예외 정의
 class AIClientError(Exception):
