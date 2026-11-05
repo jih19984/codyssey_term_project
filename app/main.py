@@ -91,6 +91,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(chat.router)
     app.include_router(history.router)
 
+    # region 2. 예외 처리기 등록
     @app.exception_handler(RequestValidationError)
     async def handle_validation_error(
         request: Request, exc: RequestValidationError
@@ -107,7 +108,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 }
             },
         )
-
+    # endregion
+    
+    # region 3. 기타 예외 처리
     @app.exception_handler(Exception)
     async def handle_unexpected_error(request: Request, exc: Exception) -> JSONResponse:
         # 여기까지 오는 건 access_control의 401/403이나 pydantic 검증처럼 "예상된"
@@ -125,7 +128,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 }
             },
         )
-
+    # endregion
+    
     @app.get("/", response_class=HTMLResponse)
     def index(
         request: Request,
