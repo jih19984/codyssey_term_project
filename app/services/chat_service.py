@@ -130,7 +130,9 @@ class ChatService:
         )
 
         try:
+            # 1. 대화 1개 만들기
             conversation = create_conversation(self._session, user_id)
+            # 2. 질문 저장
             add_message(
                 self._session,
                 user_id,
@@ -138,6 +140,7 @@ class ChatService:
                 "user",
                 question,
             )
+            # 3. 답변 저장
             assistant_message = add_message(
                 self._session,
                 user_id,
@@ -147,7 +150,9 @@ class ChatService:
                 ai_model=self._ai_model,
                 latency_ms=latency_ms,
             )
+            # 4. 한 번에 확정
             self._session.commit()
+        # 5. 실패하면 전부 롤백
         except SQLAlchemyError as exc:
             self._session.rollback()
             log_event(
