@@ -1,0 +1,6 @@
+# Caddy: 앞단에서 HTTPS를 처리하고 요청을 FastAPI(web:8000)로 넘긴다.
+# 도메인 이름만 적으면 Let's Encrypt 인증서를 자동으로 발급·갱신하고,
+# http://로 들어온 요청은 https://로 리다이렉트한다.
+{$DOMAIN} {
+	reverse_proxy web:8000
+}
