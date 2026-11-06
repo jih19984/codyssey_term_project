@@ -52,7 +52,7 @@ def require_page_user(current_user: User | None = Depends(get_current_user)) -> 
         )
     return current_user
 
-
+# 로그인 여부를 확인하고, 로그인 안 돼 있으면 403 에러를 발생시킨다.
 def get_or_create_csrf_token(request: Request) -> str:
     token = request.session.get(CSRF_SESSION_KEY)
     if not isinstance(token, str) or not token:
@@ -60,7 +60,7 @@ def get_or_create_csrf_token(request: Request) -> str:
         request.session[CSRF_SESSION_KEY] = token
     return token
 
-
+# CSRF 토큰을 검증한다.
 def _validate_csrf_token(request: Request, submitted_token: str | None) -> None:
     expected_token = request.session.get(CSRF_SESSION_KEY)
     if (
@@ -73,14 +73,14 @@ def _validate_csrf_token(request: Request, submitted_token: str | None) -> None:
             detail="유효하지 않은 CSRF 토큰입니다.",
         )
 
-
+# 로그인 폼에서 전송된 CSRF 토큰을 검증한다. (폼 hidden input)
 def require_form_csrf(
     request: Request,
     csrf_token: str | None = Form(default=None),
 ) -> None:
     _validate_csrf_token(request, csrf_token)
 
-
+# 로그인 API 요청에서 전송된 CSRF 토큰을 검증한다. (X-CSRF-Token 헤더)
 def require_header_csrf(
     request: Request,
     csrf_token: str | None = Header(default=None, alias="X-CSRF-Token"),

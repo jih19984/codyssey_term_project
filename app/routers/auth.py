@@ -1,3 +1,4 @@
+# region 0. import statements
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Form, Request, status
@@ -18,6 +19,7 @@ from app.services.auth_service import (
     UsernameAlreadyExistsError,
 )
 from app.templating import templates
+# endregion
 
 # APIRouter = 경로들의 묶음. main.py에서 include_router()로 앱에 연결한다.
 # prefix="/auth"를 주면 아래 "/signup"은 실제로 "/auth/signup"이 된다.
