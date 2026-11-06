@@ -509,7 +509,7 @@ docker compose run --rm web pytest
 
 ---
 
-## 8. 클라우드 배포 (Render Deployment)
+## 8. 클라우드 배포 (Render / AWS EC2 Deployment)
 
 운영 환경은 **Render Free Web Service** 및 **Render PostgreSQL**에 무중단 자동 배포되도록 구성되어 있습니다. (확인 기준일: 2026-10-15)
 
@@ -526,6 +526,77 @@ docker compose run --rm web pytest
 
 > [!WARNING]
 > Render의 Free PostgreSQL 인스턴스는 생성 후 **30일** 뒤 자동 만료(삭제)됩니다. 최종 프로젝트 평가 및 시연 일정을 고려하여 DB 만료일을 사전에 점검하고 필요 시 백업을 수행해야 합니다.
+
+### 8.2 AWS EC2 배포 (Docker Compose + Caddy + nip.io)
+
+EC2 한 대에 **Caddy(HTTPS) → FastAPI → PostgreSQL**을 Docker Compose로 실행합니다. 도메인을 따로 구매하지 않고, `nip.io`를 사용해 Let's Encrypt 무료 인증서를 받습니다.
+
+- **접속 주소**: https://54-180-57-173.nip.io (Elastic IP `54.180.57.173`, 확인 기준일: 2026-11-06)
+- **구성 파일**:
+  - [`docker-compose.prod.yml`](docker-compose.prod.yml)
+  - [`Caddyfile`](Caddyfile)
+  - [`.env.prod.example`](.env.prod.example)
+- **상세 가이드**: [docs/deploy-aws.md](docs/deploy-aws.md)
+
+```text
+브라우저 ──https(443)──▶ Caddy ──http──▶ web(FastAPI :8000) ──▶ postgres(:5432)
+                        인증서 자동 발급      외부 비공개              외부 비공개
+```
+
+**1) EC2 준비 (AWS 콘솔)**
+- AMI는 Ubuntu 24.04 LTS, 인스턴스는 t3.micro, 스토리지는 gp3 20GiB로 만들고, 키 페어(`.pem`)를 생성합니다.
+- 보안 그룹 인바운드 규칙은 아래 세 개만 둡니다. 8000·5432 포트는 열지 않습니다.
+  - `22`: 내 IP만
+  - `80`: 전체
+  - `443`: 전체
+- 탄력적 IP를 할당해서 인스턴스에 연결합니다.
+
+**2) 접속 및 Docker 설치**
+```bash
+chmod 400 ~/.ssh/<키 파일>.pem
+ssh -i ~/.ssh/<키 파일>.pem ubuntu@<탄력적 IP>
+
+curl -fsSL https://get.docker.com | sudo sh
+sudo usermod -aG docker ubuntu
+exit   # 다시 접속해야 docker 그룹 권한이 적용됩니다
+
+# t3.micro(메모리 1GB)에서 빌드가 멈추지 않도록 스왑 2GB 추가
+sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile
+sudo mkswap /swapfile && sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+```
+
+**3) 코드 내려받기 및 `.env` 작성**
+```bash
+git clone https://github.com/jih19984/codyssey_term_project.git
+cd codyssey_term_project
+cp .env.prod.example .env
+nano .env
+```
+
+| 변수 | 값 |
+| :--- | :--- |
+| `DOMAIN` | 탄력적 IP의 점(`.`)을 하이픈(`-`)으로 바꾼 nip.io 주소 (예: `54-180-57-173.nip.io`) |
+| `POSTGRES_PASSWORD` | `openssl rand -hex 16` 출력값 |
+| `SESSION_SECRET` | `openssl rand -hex 32` 출력값 |
+| `AI_API_KEY` | Codyssey Neito API 키 |
+
+**4) 실행 및 확인**
+```bash
+docker compose -f docker-compose.prod.yml up -d --build
+docker compose -f docker-compose.prod.yml ps                 # postgres, web, caddy 모두 Up
+docker compose -f docker-compose.prod.yml logs -f caddy web  # 인증서 발급 및 앱 기동 로그
+curl https://<DOMAIN>/health                                 # {"status":"ok"}
+```
+
+**5) 코드 업데이트**
+```bash
+git pull
+docker compose -f docker-compose.prod.yml up -d --build   # 기동 시 alembic upgrade head 자동 실행
+```
+
+> [!NOTE]
+> 운영 환경(`APP_ENV=production`)의 세션 쿠키는 `Secure` 속성이라 **https로 접속해야 로그인이 유지**됩니다. Caddy가 보내는 `X-Forwarded-Proto` 헤더를 앱이 신뢰하도록 `FORWARDED_ALLOW_IPS`를 설정해 두었기 때문에, 정적 파일 주소도 https로 만들어집니다.
 
 ---
 
