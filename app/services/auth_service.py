@@ -31,11 +31,10 @@ class InvalidCredentialsError(AuthServiceError):
     def __init__(self, username: str) -> None:
         super().__init__("invalid credentials")
         self.username = username
-# endregion
 
 class UsernameAlreadyExistsError(AuthServiceError):
     """이미 등록된 아이디로 회원가입을 시도한 경우."""
-
+# endregion
 
 # 인증 서비스 유틸리티 함수
 def normalize_and_validate_credentials(username: str, password: str) -> str:

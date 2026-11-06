@@ -1,3 +1,4 @@
+# region 0. import statements
 from __future__ import annotations
 
 import uuid
@@ -17,14 +18,14 @@ from app.logging_utils import REQUEST_RECEIVED, UNHANDLED_ERROR, log_event, log_
 from app.models import User
 from app.routers import auth, chat, history
 from app.templating import TEMPLATES_DIR, templates
-
+# endregion
 
 # request_id가 없으면 새로 만들어 반환. 있으면 그대로 반환
 def _request_id(request: Request) -> str:
     request_id = getattr(request.state, "request_id", None)
     return request_id if isinstance(request_id, str) else uuid.uuid4().hex
 
-
+# 유효성 검사 메시지 추출 함수
 def _extract_validation_message(exc: RequestValidationError) -> str:
     # pydantic의 field_validator에서 raise ValueError(message)로 던진 경우,
     # exc.errors()[0]["msg"]에는 "Value error, message" 형태로 접두어가 붙는다.
@@ -129,7 +130,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             },
         )
     # endregion
-    
+
     @app.get("/", response_class=HTMLResponse)
     def index(
         request: Request,

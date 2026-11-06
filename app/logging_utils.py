@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import sys
 
+# region 1. 앱 전용 이벤트 로거 정의
 # 앱 전용 이벤트 로거. 루트 로거 설정(uvicorn 등)과 섞이지 않게 이름을 분리해서,
 # 테스트에서도 caplog.set_level(..., logger="app.events")로 이 로거만 골라 볼 수 있다.
 logger = logging.getLogger("app.events")
@@ -17,8 +18,9 @@ if not logger.handlers:
     logger.addHandler(_handler)
     # propagate는 기본값(True)을 그대로 둔다 — pytest의 caplog는 root 로거에
     # 붙은 핸들러로 레코드를 모으기 때문에, 전파를 끊으면 caplog가 못 잡는다.
+# endregion
 
-# 과제가 요구하는 이벤트명. 로그를 검색/필터링할 때 이 이름으로 찾는다.
+# region 2. 과제가 요구하는 이벤트명. 로그를 검색/필터링할 때 이 이름으로 찾는다.
 REQUEST_RECEIVED = "request_received"
 AI_CALL_START = "ai_call_start"
 AI_CALL_SUCCESS = "ai_call_success"
@@ -26,6 +28,7 @@ AI_CALL_FAILURE = "ai_call_failure"
 DB_SAVE_SUCCESS = "db_save_success"
 DB_SAVE_FAILURE = "db_save_failure"
 UNHANDLED_ERROR = "unhandled_error"
+# endregion
 
 
 def log_event(event: str, **fields: object) -> None:
@@ -37,7 +40,6 @@ def log_event(event: str, **fields: object) -> None:
     """
     rendered = " ".join(f"{key}={value}" for key, value in fields.items())
     logger.info("%s %s", event, rendered)
-
 
 def log_exception(event: str, exc: BaseException, **fields: object) -> None:
     """스택 트레이스가 필요한 실패(알 수 없는 오류)에 사용한다."""

@@ -1,3 +1,4 @@
+# region 0. import statements
 # 타입 힌트를 문자열로 지연평가하게 도와줌
 from __future__ import annotations
 
@@ -7,6 +8,7 @@ from collections.abc import Generator
 from fastapi import Request
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
+# endregion
 
 # DeclarativeBase를 그대로 상속만 받아 Base 클래스 정의
 class Base(DeclarativeBase):

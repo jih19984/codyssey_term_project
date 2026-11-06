@@ -1,7 +1,11 @@
+# region 0. import statements
 from __future__ import annotations
 
 import re
 import string
+# endregion
+
+# region 1. 아이디/비밀번호 정책 정의
 
 # 아이디 정책: 영문 대소문자/숫자/밑줄/하이픈만 허용, 3~20자.
 # - 공백·한글·이모지 등 다른 유니코드 문자는 허용하지 않는다 (ASCII로 제한).
@@ -32,21 +36,23 @@ PASSWORD_POLICY_MESSAGE = (
     f"영문 대문자, 영문 소문자, 특수문자를 각각 1개 이상 포함해야 합니다."
 )
 
+# endregion
 
+# 아이디 정책 검사: 길이 + 허용 문자만 검사. 실패하면 False 반환.
 def is_valid_username(username: str) -> bool:
     return (
         USERNAME_MIN_LENGTH <= len(username) <= USERNAME_MAX_LENGTH
         and USERNAME_PATTERN.fullmatch(username) is not None
     )
 
-
+# 비밀번호 정책 검사: 길이만 검사. 실패하면 False 반환.
 def is_valid_password(password: str) -> bool:
     # 길이만 검사한다 (로그인·회원가입 공통). 비밀번호는 여기서도, 호출하는 쪽
     # (services/auth_service.py)에서도 strip()이나 다른 가공을 하지 않고
     # 원문 그대로 hash_password에 넘긴다.
     return PASSWORD_MIN_LENGTH <= len(password) <= PASSWORD_MAX_LENGTH
 
-
+# 회원가입 전용: 길이 + 문자 조합(대문자·소문자·특수문자 각 1개 이상)을 검사한다.
 def is_strong_password(password: str) -> bool:
     # 회원가입 전용: 길이 + 문자 조합(대문자·소문자·특수문자 각 1개 이상)을 검사한다.
     return (
