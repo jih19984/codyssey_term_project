@@ -23,14 +23,14 @@ EVENT_LOGGER = "app.events"
 
 
 def create_user(db_session: Session, username: str = "whale01") -> User:
-    user = User(username=username, password_hash=hash_password("sea-shanty-9"))
+    user = User(username=username, password_hash=hash_password("Sea-shanty-9"))
     db_session.add(user)
     db_session.commit()
     db_session.refresh(user)
     return user
 
 
-def login(client: TestClient, username: str = "whale01", password: str = "sea-shanty-9") -> None:
+def login(client: TestClient, username: str = "whale01", password: str = "Sea-shanty-9") -> None:
     csrf_token = get_csrf_token(client, "/auth/login")
     response = client.post(
         "/auth/login",
@@ -75,7 +75,7 @@ def test_successful_chat_logs_ai_and_db_events_without_leaking_content(
     assert "db_save_success" in caplog.text
 
     # 완료 조건: 비밀번호·세션·API 키·대화 원문은 로그에 남지 않는다.
-    assert "sea-shanty-9" not in caplog.text
+    assert "Sea-shanty-9" not in caplog.text
     assert session_cookie_value not in caplog.text
     assert settings.ai_api_key not in caplog.text
     assert "절대 로그에 남으면 안 되는 질문" not in caplog.text
@@ -113,7 +113,7 @@ def test_persistence_failure_logs_db_save_failure(
     caplog: pytest.LogCaptureFixture,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    user = User(username="whale02", password_hash=hash_password("sea-shanty-9"))
+    user = User(username="whale02", password_hash=hash_password("Sea-shanty-9"))
     db_session.add(user)
     db_session.commit()
     db_session.refresh(user)

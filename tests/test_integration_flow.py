@@ -43,8 +43,8 @@ def test_signup_login_ask_and_see_answer_and_history(
 ) -> None:
     # 과제 핵심 흐름 전체를 실제 HTTP 요청으로 한 번에 훑는다:
     # 회원가입 -> 로그인 -> 질문 -> 같은 화면에서 응답 확인 -> 기록 조회.
-    signup(client, "orca01", "deep-sea-9")
-    login(client, "orca01", "deep-sea-9")
+    signup(client, "orca01", "Deep-sea-9")
+    login(client, "orca01", "Deep-sea-9")
     client.app.state.ai_client = FakeAIClient(response="바다의 깊이는 평균 약 3,700m입니다.")
 
     first = ask(client, "바다의 평균 깊이는 얼마야?")
@@ -74,8 +74,8 @@ def test_signup_login_ask_and_see_answer_and_history(
 def test_ai_failure_returns_consistent_error_and_leaves_no_partial_history(
     client: TestClient, db_session: Session
 ) -> None:
-    signup(client, "orca02", "deep-sea-9")
-    login(client, "orca02", "deep-sea-9")
+    signup(client, "orca02", "Deep-sea-9")
+    login(client, "orca02", "Deep-sea-9")
     client.app.state.ai_client = FakeAIClient(error=AITimeoutError("timeout"))
 
     response = ask(client, "AI가 응답 못하면 어떻게 돼?")

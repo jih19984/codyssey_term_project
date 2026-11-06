@@ -10,6 +10,7 @@ from app.security import hash_password, verify_password
 from app.validation import (
     PASSWORD_POLICY_MESSAGE,
     USERNAME_POLICY_MESSAGE,
+    is_strong_password,
     is_valid_password,
     is_valid_username,
 )
@@ -68,6 +69,12 @@ class AuthService:
     def register(self, username: str, password: str) -> User:
     # region 3. 회원가입 서비스 메서드
         normalized_username = normalize_and_validate_credentials(username, password)
+        # 새 비밀번호에만 조합 규칙(대문자·소문자·특수문자)을 추가로 검사한다.
+        if not is_strong_password(password):
+            raise InvalidCredentialFormatError(
+                PASSWORD_POLICY_MESSAGE,
+                normalized_username,
+            )
         try:
             user = create_user(
                 self._session,

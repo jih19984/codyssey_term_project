@@ -13,7 +13,7 @@ from tests.helpers import get_csrf_token
 def create_user(db_session: Session, username: str) -> User:
     user = User(
         username=username,
-        password_hash=hash_password("sea-shanty-9"),
+        password_hash=hash_password("Sea-shanty-9"),
     )
     db_session.add(user)
     db_session.commit()
@@ -27,7 +27,7 @@ def login(client: TestClient, username: str) -> None:
         "/auth/login",
         data={
             "username": username,
-            "password": "sea-shanty-9",
+            "password": "Sea-shanty-9",
             "csrf_token": csrf_token,
         },
         follow_redirects=False,

@@ -27,7 +27,7 @@ from tests.helpers import get_csrf_token
 def create_user(db: Session, username: str) -> User:
     user = User(
         username=username,
-        password_hash=hash_password("sea-shanty-9"),
+        password_hash=hash_password("Sea-shanty-9"),
     )
     db.add(user)
     db.commit()
@@ -41,7 +41,7 @@ def login(client: TestClient, username: str) -> None:
         "/auth/login",
         data={
             "username": username,
-            "password": "sea-shanty-9",
+            "password": "Sea-shanty-9",
             "csrf_token": csrf_token,
         },
         follow_redirects=False,
@@ -201,7 +201,7 @@ def test_public_form_post_without_csrf_is_rejected(
 ) -> None:
     response = security_client.post(
         path,
-        data={"username": "whale01", "password": "sea-shanty-9"},
+        data={"username": "whale01", "password": "Sea-shanty-9"},
     )
 
     assert response.status_code == 403
@@ -214,7 +214,7 @@ def test_invalid_form_csrf_is_rejected(security_client: TestClient) -> None:
         "/auth/signup",
         data={
             "username": "whale01",
-            "password": "sea-shanty-9",
+            "password": "Sea-shanty-9",
             "csrf_token": "invalid-token",
         },
     )
@@ -233,7 +233,7 @@ def test_csrf_token_from_another_client_is_rejected(
             "/auth/signup",
             data={
                 "username": "whale01",
-                "password": "sea-shanty-9",
+                "password": "Sea-shanty-9",
                 "csrf_token": first_token,
             },
         )
@@ -288,7 +288,7 @@ def test_login_rotates_csrf_token(
         "/auth/login",
         data={
             "username": user.username,
-            "password": "sea-shanty-9",
+            "password": "Sea-shanty-9",
             "csrf_token": before_login,
         },
         follow_redirects=False,
